@@ -9,6 +9,11 @@ brew install freetype
 pip install --only-binary=:all: reportlab
 ```
 
+Run unit tests
+```
+python -m unittest test_main.py
+```
+
 Use
 ```
 python main.py items.txt 5 output.pdf
