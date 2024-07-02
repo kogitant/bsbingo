@@ -16,10 +16,10 @@ python -m unittest test_main.py
 
 Use
 ```
-python main.py items.txt 5 output.pdf
+python main.py example_items.txt 5 output.pdf
 ```
 
 If you don't want a free square:
 ```
-python main.py items.txt 5 output.pdf --no-free
+python main.py example_items.txt 5 output.pdf --no-free
 ```
