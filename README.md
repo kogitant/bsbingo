@@ -13,3 +13,8 @@ Use
 ```
 python main.py items.txt 5 output.pdf
 ```
+
+If you don't want a free square:
+```
+python main.py items.txt 5 output.pdf --no-free
+```

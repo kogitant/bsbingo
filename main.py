@@ -5,16 +5,18 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from reportlab.pdfbase.pdfmetrics import stringWidth
 
 def read_items(file_path):
     with open(file_path, 'r') as file:
         return [line.strip() for line in file if line.strip()]
 
-def generate_bingo_card(items):
-    return random.sample(items, 25)
+def generate_bingo_card(items, use_free_square):
+    card = random.sample(items, 25)
+    if use_free_square:
+        card[12] = "FREE"  # Replace center square with FREE
+    return card
 
-def create_bingo_pdf(cards, output_file):
+def create_bingo_pdf(cards, output_file, use_free_square):
     doc = SimpleDocTemplate(output_file, pagesize=A4)
     elements = []
     styles = getSampleStyleSheet()
@@ -26,8 +28,8 @@ def create_bingo_pdf(cards, output_file):
         data = []
         for i in range(0, 25, 5):
             row = []
-            for item in card[i:i+5]:
-                if i == 10 and (i - 10 + len(row)) == 2:  # Center cell
+            for j, item in enumerate(card[i:i+5]):
+                if use_free_square and i == 10 and j == 2:  # Center cell
                     cell = Paragraph("FREE", bingo_style)
                 else:
                     # Adjust font size to fit the text
@@ -48,7 +50,7 @@ def create_bingo_pdf(cards, output_file):
             ('ALIGN', (0,0), (-1,-1), 'CENTER'),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('GRID', (0,0), (-1,-1), 1, colors.black),
-            ('BACKGROUND', (2,2), (2,2), colors.lightgrey),  # FREE space
+            ('BACKGROUND', (2,2), (2,2), colors.lightgrey if use_free_square else colors.white),  # FREE space or not
         ]))
         
         elements.append(table)
@@ -61,15 +63,19 @@ def main():
     parser.add_argument("input_file", help="Path to the file containing bingo items")
     parser.add_argument("num_cards", type=int, help="Number of unique bingo cards to generate")
     parser.add_argument("output_file", help="Path to the output PDF file")
+    parser.add_argument("--no-free", action="store_true", help="Don't use a FREE square in the center")
     args = parser.parse_args()
 
     items = read_items(args.input_file)
-    if len(items) < 24:  # We need at least 24 items (25th is FREE)
-        print("Error: Input file must contain at least 24 items.")
+    use_free_square = not args.no_free
+    min_items = 24 if use_free_square else 25
+
+    if len(items) < min_items:
+        print(f"Error: Input file must contain at least {min_items} items.")
         return
 
-    cards = [generate_bingo_card(items) for _ in range(args.num_cards)]
-    create_bingo_pdf(cards, args.output_file)
+    cards = [generate_bingo_card(items, use_free_square) for _ in range(args.num_cards)]
+    create_bingo_pdf(cards, args.output_file, use_free_square)
     print(f"{args.num_cards} bingo cards have been generated and saved to {args.output_file}")
 
 if __name__ == "__main__":
