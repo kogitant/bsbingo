@@ -28,14 +28,14 @@ class TestBingoGenerator(unittest.TestCase):
         card = main.generate_bingo_card(items, use_free_square=True)
         self.assertEqual(len(card), 25)
         self.assertEqual(card[12], 'FREE')
-        self.assertNotEqual(set(card), set(items))  # Check that items are shuffled
+        self.assertNotEqual(card, items)  # Check that items are not in the same order
 
     def test_generate_bingo_card_without_free(self):
         items = main.read_items(self.temp_file.name)
         card = main.generate_bingo_card(items, use_free_square=False)
         self.assertEqual(len(card), 25)
         self.assertNotIn('FREE', card)
-        self.assertNotEqual(set(card), set(items))  # Check that items are shuffled
+        self.assertNotEqual(card, items)  # Check that items are not in the same order
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_main_with_free(self, mock_stdout):
